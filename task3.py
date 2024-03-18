@@ -82,7 +82,7 @@ def main():
                 for item in list_of_levels:
                     print(f"{item['date']} - {item['info']}")
     else:
-        print('input a logs file as an argument')
+        print('input a logs file path as an argument')
 
 
 if __name__ == '__main__':
