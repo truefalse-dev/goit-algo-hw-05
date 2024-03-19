@@ -8,25 +8,17 @@ path = Path('storage/phonebook.txt')
 
 
 def input_error(func):
-    """
-    :param func:
-    :return:
-    """
+
     @functools.wraps(func)
+
     def inner(command, args):
 
-        if command in ['add', 'change']:
-            if len(args) != 2:
-                return f'Enter 2 arguments for the command \'{command}\''
-
-            if len(args[1]) != 10:
-                return f'Enter 10 digits for the phone'
-
-        if command in ['phone']:
-            if len(args) != 1:
-                return f'Enter 1 argument for the command \'{command}\''
-
-        return func(command, args)
+        try:
+            return func(command, args)
+        except ValueError:
+            return "Give me name and phone please."
+        except IndexError:
+            return "Enter user name."
 
     return inner
 
@@ -41,7 +33,7 @@ def add_contact(command: str, args: list) -> str:
     username, phone = args
 
     with open(path, encoding='utf-8') as fh:
-        if username in fh.read():
+        if is_exist(username, fh.read()):
             return 'Contact is exists'
 
     with open(path, 'a', encoding='utf-8') as fh:
@@ -59,14 +51,14 @@ def change_contact(command: str, args: list) -> str:
     username, phone = args
 
     with open(path, encoding='utf-8') as fh:
-        if username not in fh.read():
+        if not is_exist(username, fh.read()):
             return 'Contact not found'
 
         fh.seek(0)
         lines = [line.strip() for line in fh.readlines()]
         for k, line in enumerate(lines):
             lines[k] = f'{line}\n'
-            if username in line:
+            if is_exist(username, line):
                 lines[k] = f'{username},{phone}\n'
 
     with open(path, '+w', encoding='utf-8') as fh:
@@ -85,13 +77,13 @@ def show_phone(command: str, args: list) -> str:
     username = args[0]
 
     with open(path, encoding='utf-8') as fh:
-        if username not in fh.read():
+        if not is_exist(username, fh.read()):
             return 'Contact not found'
 
         fh.seek(0)
         lines = [line.strip() for line in fh.readlines()]
         for line in lines:
-            if username in line:
+            if is_exist(username, line):
                 return dict_to_text([line_to_dict(line)])
 
 
@@ -141,6 +133,15 @@ def pattern(item: dict) -> str:
     :return:
     """
     return f"{item['name']}: {phone_format(item['phone'])}"
+
+
+def is_exist(username: str, context: str) -> bool:
+    """
+    :param username:
+    :param context:
+    :return:
+    """
+    return username in re.findall(r'(.*?),', context)
 
 
 def phone_format(phone_number: str) -> str:

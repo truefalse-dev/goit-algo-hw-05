@@ -1,7 +1,6 @@
 import sys
 import re
 import collections
-from pathlib import Path
 
 
 def parse_log_line(line: str) -> dict:
@@ -17,7 +16,7 @@ def parse_log_line(line: str) -> dict:
     return dict(zip(keys, match.groups()))
 
 
-def load_logs(file_path: Path) -> list:
+def load_logs(file_path: str) -> list:
     """
     :param file_path:
     """
@@ -68,7 +67,7 @@ def display_log_counts(counts: dict):
 
 def main():
     if len(sys.argv) > 1:
-        _list = [item for item in load_logs(Path(sys.argv[1]))]
+        _list = [item for item in load_logs(sys.argv[1])]
 
         display_log_counts(count_logs_by_level(_list))
 
